@@ -65,17 +65,40 @@ export default function Home() {
     useState<NotificationPermission>("default");
 
   useEffect(() => {
-    // Request notification permission when component mounts
-    if ("Notification" in window) {
+    // Check if notifications are supported
+    if (!("Notification" in window)) {
+      console.log("This browser does not support notifications");
+      return;
+    }
+
+    // Set initial permission state
+    setNotificationPermission(Notification.permission);
+
+    // Request permission if not already granted
+    if (Notification.permission === "default") {
       Notification.requestPermission().then((permission) => {
         setNotificationPermission(permission);
+        if (permission === "granted") {
+          // Send initial notification to test
+          new Notification("Manager Reminder", {
+            body: getRandomManagerMessage(),
+            icon: "/favicon.ico",
+          });
+        }
       });
     }
 
     // Set up periodic notifications
     let notificationInterval: NodeJS.Timeout;
 
-    if (notificationPermission === "granted") {
+    if (Notification.permission === "granted") {
+      // Send initial notification
+      new Notification("Manager Reminder", {
+        body: getRandomManagerMessage(),
+        icon: "/favicon.ico",
+      });
+
+      // Set up interval for future notifications
       notificationInterval = setInterval(() => {
         new Notification("Manager Reminder", {
           body: getRandomManagerMessage(),
@@ -89,7 +112,7 @@ export default function Home() {
         clearInterval(notificationInterval);
       }
     };
-  }, [notificationPermission]);
+  }, []); // Empty dependency array since we only want this to run once
 
   const handleHoursChange = (day: string, value: string) => {
     const numValue = parseFloat(value);
@@ -148,17 +171,25 @@ export default function Home() {
           Weekly Time Entry
         </h1>
 
-        {notificationPermission === "default" && (
+        {notificationPermission !== "granted" && (
           <div className="mb-4 text-center">
             <button
-              onClick={() =>
-                Notification.requestPermission().then((permission) =>
-                  setNotificationPermission(permission)
-                )
-              }
+              onClick={() => {
+                Notification.requestPermission().then((permission) => {
+                  setNotificationPermission(permission);
+                  if (permission === "granted") {
+                    new Notification("Manager Reminder", {
+                      body: getRandomManagerMessage(),
+                      icon: "/favicon.ico",
+                    });
+                  }
+                });
+              }}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm"
             >
-              Enable Reminder Notifications
+              {notificationPermission === "denied"
+                ? "Re-enable Notifications"
+                : "Enable Reminder Notifications"}
             </button>
           </div>
         )}
