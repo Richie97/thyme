@@ -345,7 +345,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Add Timer Button */}
+        {/* Add Thymer Button */}
         <div className="mb-6 text-center">
           <button
             onClick={handleTimerToggle}
@@ -357,11 +357,11 @@ export default function Home() {
           >
             {isTimerRunning ? (
               <div className="flex items-center gap-2">
-                <span>Stop Timer</span>
+                <span>Stop Thymer</span>
                 <TimerDisplay elapsedTime={elapsedTime} />
               </div>
             ) : (
-              "Start Timer"
+              "Start Thymer"
             )}
           </button>
         </div>
