@@ -485,7 +485,7 @@ export default function Home() {
                   ? "THERE IS ONLY MANAGEMENT, HAIL MANAGEMENT"
                   : totalTimeTracked > 1000000
                   ? "Management Thanks You For Your Sacrifice"
-                  : "Total Time Ever Tracked"}
+                  : "Total Thyme Ever Tracked"}
               </h2>
               <div
                 className={`flex items-center gap-2 ${
