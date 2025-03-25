@@ -14,11 +14,21 @@ const DAYS = [
 ];
 
 const UNDER_HOURS_MESSAGES = [
-  "Oh, only {hours} hours? I'm sure your boss will understand...",
-  "Wow, {hours} hours? That's... ambitious.",
-  "8 hours is just a suggestion, right? 😏",
-  "I'm sure your coworkers are thrilled to pick up your slack...",
-  "Breaking news: The standard workday is 8 hours! 📰",
+  "Oh, only {hours} hours? I'm sure your boss will be thrilled with your dedication...",
+  "Wow, {hours} hours? That's... impressive. For a part-time job, maybe?",
+  "8 hours is just a suggestion, right? Like how brushing your teeth is 'suggested' twice daily...",
+  "I'm sure your coworkers love carrying your workload while you're 'working' {hours} hours...",
+  "Breaking news: The standard workday is 8 hours! But who needs standards, right? 📰",
+  "Only {hours} hours? Your commitment to mediocrity is truly inspiring...",
+  "At this rate, you'll be promoted to customer in no time!",
+  "I'm sure your manager will understand... after they finish laughing.",
+  "Working {hours} hours? That's cute. Real cute.",
+  "Your dedication to doing the bare minimum is truly remarkable.",
+  "Oh, {hours} hours? I didn't realize we were running a charity here...",
+  "Your work ethic is as impressive as your hours are short.",
+  "I'm sure your coworkers are thrilled to pick up your slack... again.",
+  "Only {hours} hours? Your commitment to excellence is truly... something.",
+  "At least you're consistent - consistently disappointing!",
 ];
 
 const MANAGER_MESSAGES = [
