@@ -46,6 +46,15 @@ const getRandomManagerMessage = () => {
   return MANAGER_MESSAGES[randomIndex];
 };
 
+const generateRandomHours = () => {
+  return DAYS.reduce((acc, day) => {
+    // Generate random number between 6 and 16 with 0.5 step
+    const randomHours = Math.floor(Math.random() * 21) / 2 + 6; // This gives us numbers from 6 to 16 in 0.5 steps
+    acc[day] = randomHours.toString();
+    return acc;
+  }, {} as { [key: string]: string });
+};
+
 export default function Home() {
   const [hours, setHours] = useState<{ [key: string]: string }>({});
   const [notifications, setNotifications] = useState<{
@@ -72,7 +81,7 @@ export default function Home() {
           body: getRandomManagerMessage(),
           icon: "/favicon.ico",
         });
-      }, 5 * 60 * 1000); // 5 minutes
+      }, 20 * 60 * 1000); // 20 minutes
     }
 
     return () => {
@@ -122,6 +131,13 @@ export default function Home() {
     setNotifications({});
     setShowThankYou(true);
     setTimeout(() => setShowThankYou(false), 3000);
+  };
+
+  const handleCopyLastWeek = () => {
+    const randomHours = generateRandomHours();
+    setHours(randomHours);
+    // Clear any existing notifications
+    setNotifications({});
   };
 
   return (
@@ -203,7 +219,13 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-center">
+        <div className="mt-6 flex justify-center gap-4">
+          <button
+            onClick={handleCopyLastWeek}
+            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 shadow-sm hover:shadow-md"
+          >
+            Copy Last Week's Timesheet
+          </button>
           <button
             onClick={handleSubmit}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-sm hover:shadow-md"
@@ -214,7 +236,7 @@ export default function Home() {
 
         {showThankYou && (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
-            Thanks for coming in today! See you next Thyme! 👋
+            Thanks for coming in today! See you tomorrow! 👋
           </div>
         )}
       </div>
