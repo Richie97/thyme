@@ -270,15 +270,15 @@ export default function Home() {
           </div>
         )}
 
-        <div className="grid grid-cols-7 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 sm:gap-4">
           {DAYS.map((day) => {
             const dayDisplay = getDayDisplay(day);
             return (
               <div
                 key={day}
-                className="bg-white rounded-xl shadow-sm p-3 sm:p-4 hover:shadow-md transition-shadow duration-200"
+                className="bg-white rounded-xl shadow-sm p-2 sm:p-3 md:p-4 hover:shadow-md transition-shadow duration-200"
               >
-                <h2 className="text-sm sm:text-base font-semibold text-gray-700 mb-2 sm:mb-3 text-center">
+                <h2 className="text-xs sm:text-sm md:text-base font-semibold text-gray-700 mb-1 sm:mb-2 md:mb-3 text-center">
                   <span className="md:hidden">{dayDisplay.short}</span>
                   <span className="hidden md:inline">{dayDisplay.full}</span>
                 </h2>
@@ -290,16 +290,16 @@ export default function Home() {
                     step="0.5"
                     value={hours[day] || ""}
                     onChange={(e) => handleHoursChange(day, e.target.value)}
-                    className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 text-xs sm:text-sm md:text-base text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     placeholder="0"
                   />
-                  <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs sm:text-sm">
+                  <span className="absolute right-1.5 sm:right-2 md:right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] sm:text-xs md:text-sm">
                     hrs
                   </span>
                 </div>
                 {notifications[day]?.show && (
                   <div
-                    className={`mt-1 text-xs text-center animate-fade-in ${
+                    className={`mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-center animate-fade-in ${
                       notifications[day].type === "over"
                         ? "text-green-600"
                         : "text-amber-600"
@@ -313,27 +313,27 @@ export default function Home() {
           })}
         </div>
 
-        <div className="mt-8 bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <div className="mt-4 sm:mt-6 md:mt-8 bg-white rounded-xl shadow-sm p-3 sm:p-4 md:p-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
               Total Hours
             </h2>
-            <span className="text-xl sm:text-2xl font-bold text-blue-600">
+            <span className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600">
               {calculateTotal().toFixed(1)} hrs
             </span>
           </div>
         </div>
 
-        <div className="mt-6 flex justify-center gap-4">
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
           <button
             onClick={handleCopyLastWeek}
-            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 shadow-sm hover:shadow-md"
+            className="bg-gray-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 shadow-sm hover:shadow-md text-sm sm:text-base"
           >
             Copy Last Week&apos;s Timesheet
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-sm hover:shadow-md"
+            className="bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-sm hover:shadow-md text-sm sm:text-base"
           >
             Submit Timesheet
           </button>
