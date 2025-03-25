@@ -169,8 +169,26 @@ export default function Home() {
   const handleCopyLastWeek = () => {
     const randomHours = generateRandomHours();
     setHours(randomHours);
-    // Clear any existing notifications
-    setNotifications({});
+
+    // Generate notifications for each day
+    const newNotifications = DAYS.reduce((acc, day) => {
+      const hours = parseFloat(randomHours[day]);
+      if (hours !== 8) {
+        acc[day] = {
+          show: true,
+          type: hours > 8 ? "over" : "under",
+          message: hours < 8 ? getRandomMessage(hours) : undefined,
+        };
+      } else {
+        acc[day] = {
+          show: false,
+          type: "under",
+        };
+      }
+      return acc;
+    }, {} as { [key: string]: { show: boolean; type: "under" | "over"; message?: string } });
+
+    setNotifications(newNotifications);
   };
 
   return (
