@@ -481,14 +481,35 @@ export default function Home() {
           <div className="container mx-auto max-w-7xl">
             <div className="flex justify-between items-center">
               <h2 className="text-base sm:text-lg font-semibold text-gray-800">
-                Total Thyme Ever Tracked. Management thanks you for your
-                sacrifice.
+                {totalTimeTracked > 1000000000
+                  ? "THERE IS ONLY MANAGEMENT, HAIL MANAGEMENT"
+                  : totalTimeTracked > 1000000
+                  ? "Management Thanks You For Your Sacrifice"
+                  : "Total Time Ever Tracked"}
               </h2>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-800 font-semibold">
+              <div
+                className={`flex items-center gap-2 ${
+                  totalTimeTracked > 1000000000 ? "animate-shake" : ""
+                }`}
+              >
+                <span
+                  className={`font-semibold ${
+                    totalTimeTracked > 1000000
+                      ? "text-red-600"
+                      : "text-gray-800"
+                  }`}
+                >
                   <TimerDisplay elapsedTime={totalTimeTracked} />
                 </span>
-                <span className="text-gray-800">hrs</span>
+                <span
+                  className={`${
+                    totalTimeTracked > 1000000
+                      ? "text-red-600"
+                      : "text-gray-800"
+                  }`}
+                >
+                  hrs
+                </span>
               </div>
             </div>
           </div>
