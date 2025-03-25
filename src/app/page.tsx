@@ -112,6 +112,9 @@ export default function Home() {
     [key: string]: { show: boolean; type: "under" | "over"; message?: string };
   }>({});
   const [showThankYou, setShowThankYou] = useState(false);
+  const [showTipDialog, setShowTipDialog] = useState(false);
+  const [selectedTip, setSelectedTip] = useState<string>("");
+  const [customTip, setCustomTip] = useState<string>("");
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>("default");
 
@@ -206,10 +209,24 @@ export default function Home() {
   };
 
   const handleSubmit = () => {
+    setShowTipDialog(true);
+  };
+
+  const handleTipSubmit = () => {
+    setShowTipDialog(false);
     setHours({});
     setNotifications({});
     setShowThankYou(true);
     setTimeout(() => setShowThankYou(false), 3000);
+    // Reset tip state
+    setSelectedTip("");
+    setCustomTip("");
+  };
+
+  const handleTipCancel = () => {
+    setShowTipDialog(false);
+    setSelectedTip("");
+    setCustomTip("");
   };
 
   const handleCopyLastWeek = () => {
@@ -338,6 +355,69 @@ export default function Home() {
             Submit Timesheet
           </button>
         </div>
+
+        {showTipDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+                Thanks for using Thyme! 💚
+              </h2>
+              <p className="text-gray-600 mb-6 text-center">
+                If you enjoyed using Thyme, consider leaving a tip to support
+                management!
+              </p>
+
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {["$1", "$2", "$5"].map((tip) => (
+                  <button
+                    key={tip}
+                    onClick={() => setSelectedTip(tip)}
+                    className={`p-3 rounded-lg border-2 transition-colors ${
+                      selectedTip === tip
+                        ? "border-green-500 bg-green-50 text-green-700"
+                        : "border-gray-200 hover:border-green-300"
+                    }`}
+                  >
+                    {tip}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Custom Amount
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={customTip}
+                  onChange={(e) => {
+                    setCustomTip(e.target.value);
+                    setSelectedTip("");
+                  }}
+                  placeholder="Enter amount"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleTipCancel}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Skip
+                </button>
+                <button
+                  onClick={handleTipSubmit}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {showThankYou && (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
