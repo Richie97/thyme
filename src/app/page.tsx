@@ -31,6 +31,37 @@ const UNDER_HOURS_MESSAGES = [
   "At least you're consistent - consistently disappointing!",
 ];
 
+const EXACT_HOURS_MESSAGES = [
+  "Congratulations on being perfectly average! 🎯",
+  "8 hours? How... conventional of you. 😐",
+  "Meeting expectations, how boring! 😴",
+  "Just doing the bare minimum, I see... 👀",
+  "Living life on the edge of mediocrity! 🎭",
+  "Your commitment to mediocrity is impressive! 🏆",
+  "Wow, exactly 8 hours? How... predictable. 🎪",
+  "Playing it safe, are we? 🎲",
+  "Your dedication to being average is truly something! 🎨",
+  "Just another day of meeting expectations... 🎭",
+];
+
+const OVER_HOURS_MESSAGES = [
+  "Thank you for your dedication! 🌟",
+  "You're a true work warrior! 💪",
+  "Your commitment is inspiring! ⭐",
+  "Going above and beyond! 🚀",
+  "You're crushing it! 💫",
+  "Setting the bar high! 🎯",
+  "Your work ethic is unmatched! 🔥",
+  "Making it happen! 💪",
+  "You're a productivity powerhouse! ⚡",
+  "Leading by example! 🌟",
+  "Your dedication is remarkable! 🎉",
+  "Setting new standards! 📈",
+  "You're unstoppable! 🚀",
+  "Making excellence look easy! 💫",
+  "Your commitment shines! ⭐",
+];
+
 const MANAGER_MESSAGES = [
   "Hey! Don't forget to submit your timesheet! 📝",
   "Timesheet submission reminder: Your manager is waiting... ⏰",
@@ -51,9 +82,19 @@ const getRandomMessage = (hours: number) => {
   return UNDER_HOURS_MESSAGES[randomIndex].replace("{hours}", hours.toString());
 };
 
+const getRandomOverHoursMessage = () => {
+  const randomIndex = Math.floor(Math.random() * OVER_HOURS_MESSAGES.length);
+  return OVER_HOURS_MESSAGES[randomIndex];
+};
+
 const getRandomManagerMessage = () => {
   const randomIndex = Math.floor(Math.random() * MANAGER_MESSAGES.length);
   return MANAGER_MESSAGES[randomIndex];
+};
+
+const getRandomExactHoursMessage = () => {
+  const randomIndex = Math.floor(Math.random() * EXACT_HOURS_MESSAGES.length);
+  return EXACT_HOURS_MESSAGES[randomIndex];
 };
 
 const generateRandomHours = () => {
@@ -131,14 +172,19 @@ export default function Home() {
       [day]: value,
     }));
 
-    // Show notification if value is not 8 and not empty
-    if (value !== "" && numValue !== 8) {
+    // Show notification if value is not empty
+    if (value !== "") {
       setNotifications((prev) => ({
         ...prev,
         [day]: {
           show: true,
           type: numValue > 8 ? "over" : "under",
-          message: numValue < 8 ? getRandomMessage(numValue) : undefined,
+          message:
+            numValue === 8
+              ? getRandomExactHoursMessage()
+              : numValue < 8
+              ? getRandomMessage(numValue)
+              : getRandomOverHoursMessage(),
         },
       }));
     } else {
@@ -177,12 +223,14 @@ export default function Home() {
         acc[day] = {
           show: true,
           type: hours > 8 ? "over" : "under",
-          message: hours < 8 ? getRandomMessage(hours) : undefined,
+          message:
+            hours < 8 ? getRandomMessage(hours) : getRandomOverHoursMessage(),
         };
       } else {
         acc[day] = {
-          show: false,
+          show: true,
           type: "under",
+          message: getRandomExactHoursMessage(),
         };
       }
       return acc;
@@ -257,9 +305,7 @@ export default function Home() {
                         : "text-amber-600"
                     }`}
                   >
-                    {notifications[day].type === "over"
-                      ? "Thank you for your dedication! 🌟"
-                      : notifications[day].message}
+                    {notifications[day].message}
                   </div>
                 )}
               </div>
