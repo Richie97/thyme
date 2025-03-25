@@ -1,103 +1,127 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+const DAYS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+const getDayDisplay = (day: string) => {
+  return {
+    full: day,
+    short: day.slice(0, 3),
+  };
+};
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [hours, setHours] = useState<{ [key: string]: string }>({});
+  const [notifications, setNotifications] = useState<{
+    [key: string]: { show: boolean; type: "under" | "over" };
+  }>({});
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleHoursChange = (day: string, value: string) => {
+    const numValue = parseFloat(value);
+    setHours((prev) => ({
+      ...prev,
+      [day]: value,
+    }));
+
+    // Show notification if value is not 8 and not empty
+    if (value !== "" && numValue !== 8) {
+      setNotifications((prev) => ({
+        ...prev,
+        [day]: {
+          show: true,
+          type: numValue > 8 ? "over" : "under",
+        },
+      }));
+    } else {
+      setNotifications((prev) => ({
+        ...prev,
+        [day]: {
+          show: false,
+          type: "under",
+        },
+      }));
+    }
+  };
+
+  const calculateTotal = () => {
+    return Object.values(hours).reduce((sum, value) => {
+      const num = parseFloat(value) || 0;
+      return sum + num;
+    }, 0);
+  };
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-8">
+      <div className="w-full">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+          Weekly Time Entry
+        </h1>
+
+        <div className="grid grid-cols-7 gap-2 sm:gap-4">
+          {DAYS.map((day) => {
+            const dayDisplay = getDayDisplay(day);
+            return (
+              <div
+                key={day}
+                className="bg-white rounded-xl shadow-sm p-3 sm:p-4 hover:shadow-md transition-shadow duration-200"
+              >
+                <h2 className="text-sm sm:text-base font-semibold text-gray-700 mb-2 sm:mb-3 text-center">
+                  <span className="md:hidden">{dayDisplay.short}</span>
+                  <span className="hidden md:inline">{dayDisplay.full}</span>
+                </h2>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    max="24"
+                    step="0.5"
+                    value={hours[day] || ""}
+                    onChange={(e) => handleHoursChange(day, e.target.value)}
+                    className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    placeholder="0"
+                  />
+                  <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs sm:text-sm">
+                    hrs
+                  </span>
+                </div>
+                {notifications[day]?.show && (
+                  <div
+                    className={`mt-1 text-xs text-center animate-fade-in ${
+                      notifications[day].type === "over"
+                        ? "text-green-600"
+                        : "text-amber-600"
+                    }`}
+                  >
+                    {notifications[day].type === "over"
+                      ? "Thank you for your dedication! 🌟"
+                      : "Recommended: 8 hours per day"}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <div className="mt-8 bg-white rounded-xl shadow-sm p-4 sm:p-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+              Total Hours
+            </h2>
+            <span className="text-xl sm:text-2xl font-bold text-blue-600">
+              {calculateTotal().toFixed(1)} hrs
+            </span>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }
