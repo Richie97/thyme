@@ -106,6 +106,19 @@ const generateRandomHours = () => {
   }, {} as { [key: string]: string });
 };
 
+const TimerDisplay = ({ elapsedTime }: { elapsedTime: number }) => {
+  const formatElapsedTime = (hours: number) => {
+    const wholeHours = Math.floor(hours);
+    const minutes = Math.floor((hours - wholeHours) * 60);
+    const seconds = Math.floor(((hours - wholeHours) * 60 - minutes) * 60);
+    return `${wholeHours}:${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  return <span className="font-mono">{formatElapsedTime(elapsedTime)}</span>;
+};
+
 export default function Home() {
   const [hours, setHours] = useState<{ [key: string]: string }>({});
   const [notifications, setNotifications] = useState<{
@@ -115,6 +128,9 @@ export default function Home() {
   const [showTipDialog, setShowTipDialog] = useState(false);
   const [selectedTip, setSelectedTip] = useState<string>("");
   const [customTip, setCustomTip] = useState<string>("");
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [timerStartTime, setTimerStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>("default");
 
@@ -167,6 +183,20 @@ export default function Home() {
       }
     };
   }, []); // Empty dependency array since we only want this to run once
+
+  // Add timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning && timerStartTime) {
+      interval = setInterval(() => {
+        const elapsed = (Date.now() - timerStartTime) / (1000 * 60 * 60); // Convert to hours
+        setElapsedTime(elapsed);
+      }, 1000); // Update every second is sufficient for a timer
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isTimerRunning, timerStartTime]);
 
   const handleHoursChange = (day: string, value: string) => {
     const numValue = parseFloat(value);
@@ -256,6 +286,34 @@ export default function Home() {
     setNotifications(newNotifications);
   };
 
+  const handleTimerToggle = () => {
+    if (isTimerRunning) {
+      // Stop timer and add time to current day
+      const now = new Date();
+      const currentDay = DAYS[now.getDay() === 0 ? 6 : now.getDay() - 1]; // Convert Sunday (0) to 6
+      const currentHours = parseFloat(hours[currentDay] || "0");
+      const newHours = currentHours + elapsedTime;
+
+      setHours((prev) => ({
+        ...prev,
+        [currentDay]: newHours.toFixed(1),
+      }));
+
+      // Trigger notification for the new hours
+      handleHoursChange(currentDay, newHours.toFixed(1));
+
+      // Reset timer state
+      setIsTimerRunning(false);
+      setTimerStartTime(null);
+      setElapsedTime(0);
+    } else {
+      // Start timer
+      setIsTimerRunning(true);
+      setTimerStartTime(Date.now());
+      setElapsedTime(0);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-8">
       <Analytics />
@@ -286,6 +344,27 @@ export default function Home() {
             </button>
           </div>
         )}
+
+        {/* Add Timer Button */}
+        <div className="mb-6 text-center">
+          <button
+            onClick={handleTimerToggle}
+            className={`px-6 py-3 rounded-lg text-white font-semibold transition-all duration-200 shadow-sm hover:shadow-md ${
+              isTimerRunning
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+          >
+            {isTimerRunning ? (
+              <div className="flex items-center gap-2">
+                <span>Stop Timer</span>
+                <TimerDisplay elapsedTime={elapsedTime} />
+              </div>
+            ) : (
+              "Start Timer"
+            )}
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 sm:gap-4">
           {DAYS.map((day) => {
