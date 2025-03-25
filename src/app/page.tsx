@@ -119,6 +119,24 @@ const TimerDisplay = ({ elapsedTime }: { elapsedTime: number }) => {
   return <span className="font-mono">{formatElapsedTime(elapsedTime)}</span>;
 };
 
+// Cookie management functions
+const TOTAL_TIME_COOKIE = "total_time_tracked";
+
+const getTotalTimeFromCookie = (): number => {
+  if (typeof window === "undefined") return 0;
+  const cookie = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(TOTAL_TIME_COOKIE));
+  return cookie ? parseFloat(cookie.split("=")[1]) : 0;
+};
+
+const setTotalTimeCookie = (hours: number) => {
+  if (typeof window === "undefined") return;
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1); // Cookie expires in 1 year
+  document.cookie = `${TOTAL_TIME_COOKIE}=${hours}; expires=${date.toUTCString()}; path=/`;
+};
+
 export default function Home() {
   const [hours, setHours] = useState<{ [key: string]: string }>({});
   const [notifications, setNotifications] = useState<{
@@ -133,6 +151,12 @@ export default function Home() {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>("default");
+  const [totalTimeTracked, setTotalTimeTracked] = useState<number>(0);
+
+  // Load total time from cookie on mount
+  useEffect(() => {
+    setTotalTimeTracked(getTotalTimeFromCookie());
+  }, []);
 
   useEffect(() => {
     // Check if notifications are supported
@@ -243,6 +267,12 @@ export default function Home() {
   };
 
   const handleTipSubmit = () => {
+    // Update total time tracked with this week's total
+    const weekTotal = calculateTotal();
+    const newTotalTime = totalTimeTracked + weekTotal;
+    setTotalTimeTracked(newTotalTime);
+    setTotalTimeCookie(newTotalTime);
+
     setShowTipDialog(false);
     setHours({});
     setNotifications({});
@@ -254,7 +284,18 @@ export default function Home() {
   };
 
   const handleTipCancel = () => {
+    // Update total time tracked with this week's total
+    const weekTotal = calculateTotal();
+    const newTotalTime = totalTimeTracked + weekTotal;
+    setTotalTimeTracked(newTotalTime);
+    setTotalTimeCookie(newTotalTime);
+
     setShowTipDialog(false);
+    setHours({});
+    setNotifications({});
+    setShowThankYou(true);
+    setTimeout(() => setShowThankYou(false), 3000);
+    // Reset tip state
     setSelectedTip("");
     setCustomTip("");
   };
@@ -433,6 +474,24 @@ export default function Home() {
           >
             Submit Timesheet
           </button>
+        </div>
+
+        {/* Total Time Tracked Display - Moved to bottom */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4">
+          <div className="container mx-auto max-w-7xl">
+            <div className="flex justify-between items-center">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-800">
+                Total Thyme Ever Tracked. Management thanks you for your
+                sacrifice.
+              </h2>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-800 font-semibold">
+                  <TimerDisplay elapsedTime={totalTimeTracked} />
+                </span>
+                <span className="text-gray-800">hrs</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {showTipDialog && (
