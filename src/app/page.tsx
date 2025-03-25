@@ -224,7 +224,7 @@ export default function Home() {
             onClick={handleCopyLastWeek}
             className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors duration-200 shadow-sm hover:shadow-md"
           >
-            Copy Last Week's Timesheet
+            Copy Last Week&apos;s Timesheet
           </button>
           <button
             onClick={handleSubmit}
