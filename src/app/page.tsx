@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Analytics } from "@vercel/analytics/react";
 
 const DAYS = [
@@ -21,6 +21,14 @@ const UNDER_HOURS_MESSAGES = [
   "Breaking news: The standard workday is 8 hours! 📰",
 ];
 
+const MANAGER_MESSAGES = [
+  "Hey! Don't forget to submit your timesheet! 📝",
+  "Timesheet submission reminder: Your manager is waiting... ⏰",
+  "Quick reminder: Timesheets are due! 🎯",
+  "Your manager would love to see your timesheet! 😊",
+  "Timesheet submission: It's that time again! ⏳",
+];
+
 const getDayDisplay = (day: string) => {
   return {
     full: day,
@@ -33,12 +41,46 @@ const getRandomMessage = (hours: number) => {
   return UNDER_HOURS_MESSAGES[randomIndex].replace("{hours}", hours.toString());
 };
 
+const getRandomManagerMessage = () => {
+  const randomIndex = Math.floor(Math.random() * MANAGER_MESSAGES.length);
+  return MANAGER_MESSAGES[randomIndex];
+};
+
 export default function Home() {
   const [hours, setHours] = useState<{ [key: string]: string }>({});
   const [notifications, setNotifications] = useState<{
     [key: string]: { show: boolean; type: "under" | "over"; message?: string };
   }>({});
   const [showThankYou, setShowThankYou] = useState(false);
+  const [notificationPermission, setNotificationPermission] =
+    useState<NotificationPermission>("default");
+
+  useEffect(() => {
+    // Request notification permission when component mounts
+    if ("Notification" in window) {
+      Notification.requestPermission().then((permission) => {
+        setNotificationPermission(permission);
+      });
+    }
+
+    // Set up periodic notifications
+    let notificationInterval: NodeJS.Timeout;
+
+    if (notificationPermission === "granted") {
+      notificationInterval = setInterval(() => {
+        new Notification("Manager Reminder", {
+          body: getRandomManagerMessage(),
+          icon: "/favicon.ico",
+        });
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+
+    return () => {
+      if (notificationInterval) {
+        clearInterval(notificationInterval);
+      }
+    };
+  }, [notificationPermission]);
 
   const handleHoursChange = (day: string, value: string) => {
     const numValue = parseFloat(value);
@@ -89,6 +131,21 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
           Weekly Time Entry
         </h1>
+
+        {notificationPermission === "default" && (
+          <div className="mb-4 text-center">
+            <button
+              onClick={() =>
+                Notification.requestPermission().then((permission) =>
+                  setNotificationPermission(permission)
+                )
+              }
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm"
+            >
+              Enable Reminder Notifications
+            </button>
+          </div>
+        )}
 
         <div className="grid grid-cols-7 gap-2 sm:gap-4">
           {DAYS.map((day) => {
@@ -157,7 +214,7 @@ export default function Home() {
 
         {showThankYou && (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
-            Thanks for coming in today! See you next time! 👋
+            Thanks for coming in today! See you next Thyme! 👋
           </div>
         )}
       </div>
