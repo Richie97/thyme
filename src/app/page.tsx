@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 const DAYS = [
   "Monday",
@@ -12,6 +13,14 @@ const DAYS = [
   "Sunday",
 ];
 
+const UNDER_HOURS_MESSAGES = [
+  "Oh, only {hours} hours? I'm sure your boss will understand...",
+  "Wow, {hours} hours? That's... ambitious.",
+  "8 hours is just a suggestion, right? 😏",
+  "I'm sure your coworkers are thrilled to pick up your slack...",
+  "Breaking news: The standard workday is 8 hours! 📰",
+];
+
 const getDayDisplay = (day: string) => {
   return {
     full: day,
@@ -19,10 +28,15 @@ const getDayDisplay = (day: string) => {
   };
 };
 
+const getRandomMessage = (hours: number) => {
+  const randomIndex = Math.floor(Math.random() * UNDER_HOURS_MESSAGES.length);
+  return UNDER_HOURS_MESSAGES[randomIndex].replace("{hours}", hours.toString());
+};
+
 export default function Home() {
   const [hours, setHours] = useState<{ [key: string]: string }>({});
   const [notifications, setNotifications] = useState<{
-    [key: string]: { show: boolean; type: "under" | "over" };
+    [key: string]: { show: boolean; type: "under" | "over"; message?: string };
   }>({});
 
   const handleHoursChange = (day: string, value: string) => {
@@ -39,6 +53,7 @@ export default function Home() {
         [day]: {
           show: true,
           type: numValue > 8 ? "over" : "under",
+          message: numValue < 8 ? getRandomMessage(numValue) : undefined,
         },
       }));
     } else {
@@ -61,6 +76,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-8">
+      <Analytics />
       <div className="w-full">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
           Weekly Time Entry
@@ -103,7 +119,7 @@ export default function Home() {
                   >
                     {notifications[day].type === "over"
                       ? "Thank you for your dedication! 🌟"
-                      : "Recommended: 8 hours per day"}
+                      : notifications[day].message}
                   </div>
                 )}
               </div>
