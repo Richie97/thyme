@@ -38,6 +38,7 @@ export default function Home() {
   const [notifications, setNotifications] = useState<{
     [key: string]: { show: boolean; type: "under" | "over"; message?: string };
   }>({});
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const handleHoursChange = (day: string, value: string) => {
     const numValue = parseFloat(value);
@@ -72,6 +73,13 @@ export default function Home() {
       const num = parseFloat(value) || 0;
       return sum + num;
     }, 0);
+  };
+
+  const handleSubmit = () => {
+    setHours({});
+    setNotifications({});
+    setShowThankYou(true);
+    setTimeout(() => setShowThankYou(false), 3000);
   };
 
   return (
@@ -137,6 +145,21 @@ export default function Home() {
             </span>
           </div>
         </div>
+
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={handleSubmit}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 shadow-sm hover:shadow-md"
+          >
+            Submit Timesheet
+          </button>
+        </div>
+
+        {showThankYou && (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
+            Thanks for coming in today! See you next time! 👋
+          </div>
+        )}
       </div>
     </main>
   );
