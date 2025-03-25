@@ -341,7 +341,7 @@ export default function Home() {
 
         {showThankYou && (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
-            Thanks for coming in today! See you tomorrow! 👋
+            Thanks for coming in today! See you next Thyme! 👋
           </div>
         )}
       </div>
