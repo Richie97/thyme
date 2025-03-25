@@ -319,7 +319,7 @@ export default function Home() {
       <Analytics />
       <div className="w-full">
         <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Weekly Time Entry
+          Weekly Thyme Entry
         </h1>
 
         {notificationPermission !== "granted" && (
