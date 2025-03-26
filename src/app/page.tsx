@@ -13,6 +13,16 @@ const DAYS = [
   "Sunday",
 ];
 
+// Function to check if a string is an emoji
+const isEmoji = (str: string) => {
+  return /\p{Emoji}/u.test(str);
+};
+
+// Function to get random hours for emoji
+const getRandomEmojiHours = () => {
+  return Math.floor(Math.random() * 9) + 2; // Random number between 2 and 10
+};
+
 const UNDER_HOURS_MESSAGES = [
   "Oh, only {hours} hours? I'm sure your boss will be thrilled with your dedication...",
   "Wow, {hours} hours? That's... impressive. For a part-time job, maybe?",
@@ -68,6 +78,19 @@ const MANAGER_MESSAGES = [
   "Quick reminder: Timesheets are due! 🎯",
   "Your manager would love to see your timesheet! 😊",
   "Timesheet submission: It's that time again! ⏳",
+];
+
+const SECURITY_MESSAGES = [
+  "Oh no! You've discovered my security loophole! 🕵️‍♂️",
+  "You shouldn't have found that! 🤫",
+  "Security breach detected! 🚨",
+  "Oops! That was supposed to be secret! 🤐",
+  "You're too clever for your own good! 🧠",
+  "I see you've found my weak spot! 🎯",
+  "That's classified information! 📜",
+  "You're not supposed to know about that! 🤫",
+  "Security system compromised! 🔓",
+  "You've triggered my trap! 🕸️",
 ];
 
 const getDayDisplay = (day: string) => {
@@ -152,6 +175,8 @@ export default function Home() {
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>("default");
   const [totalTimeTracked, setTotalTimeTracked] = useState<number>(0);
+  const [showSecurityToast, setShowSecurityToast] = useState(false);
+  const [securityToastMessage, setSecurityToastMessage] = useState("");
 
   // Load total time from cookie on mount
   useEffect(() => {
@@ -223,7 +248,9 @@ export default function Home() {
   }, [isTimerRunning, timerStartTime]);
 
   const handleHoursChange = (day: string, value: string) => {
-    const numValue = parseFloat(value);
+    // Check if the value is an emoji
+    const numValue = isEmoji(value) ? getRandomEmojiHours() : parseFloat(value);
+
     setHours((prev) => ({
       ...prev,
       [day]: value,
@@ -257,7 +284,10 @@ export default function Home() {
 
   const calculateTotal = () => {
     return Object.values(hours).reduce((sum, value) => {
-      const num = parseFloat(value) || 0;
+      // Check if the value is an emoji
+      const num = isEmoji(value)
+        ? getRandomEmojiHours()
+        : parseFloat(value) || 0;
       return sum + num;
     }, 0);
   };
@@ -355,6 +385,13 @@ export default function Home() {
     }
   };
 
+  const handleSecurityRingClick = () => {
+    const randomIndex = Math.floor(Math.random() * SECURITY_MESSAGES.length);
+    setSecurityToastMessage(SECURITY_MESSAGES[randomIndex]);
+    setShowSecurityToast(true);
+    setTimeout(() => setShowSecurityToast(false), 3000);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-8">
       <Analytics />
@@ -421,10 +458,7 @@ export default function Home() {
                 </h2>
                 <div className="relative">
                   <input
-                    type="number"
-                    min="0"
-                    max="24"
-                    step="0.5"
+                    type="text"
                     value={hours[day] || ""}
                     onChange={(e) => handleHoursChange(day, e.target.value)}
                     className="w-full px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 text-xs sm:text-sm md:text-base text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -476,7 +510,25 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Total Time Tracked Display - Moved to bottom */}
+        {/* Security Loop Holes Section */}
+        <div className="fixed bottom-16 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4">
+          <div className="container mx-auto max-w-7xl">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 text-center">
+              Security Loop Holes
+            </h2>
+            <div className="flex justify-center gap-2">
+              {[...Array(6)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={handleSecurityRingClick}
+                  className="w-3 h-3 rounded-full border-2 border-gray-300 animate-pulse hover:border-red-500 hover:bg-red-100 transition-colors duration-200 cursor-pointer"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Total Time Tracked Display */}
         <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 p-4">
           <div className="container mx-auto max-w-7xl">
             <div className="flex justify-between items-center">
@@ -581,6 +633,12 @@ export default function Home() {
         {showThankYou && (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
             Thanks for coming in today! See you next Thyme! 👋
+          </div>
+        )}
+
+        {showSecurityToast && (
+          <div className="fixed bottom-32 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in z-50">
+            {securityToastMessage}
           </div>
         )}
       </div>
